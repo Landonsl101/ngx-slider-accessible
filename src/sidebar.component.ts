@@ -468,6 +468,7 @@ export class Sidebar implements AfterContentInit, OnInit, OnChanges, OnDestroy {
 
         if (existingTabIndex !== null) {
           el.setAttribute(this._tabIndexAttr, existingTabIndex);
+          el.setAttribute('tabindex', existingTabIndex);
         }
       }
 
