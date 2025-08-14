@@ -438,21 +438,21 @@ export class Sidebar implements AfterContentInit, OnInit, OnChanges, OnDestroy {
       this._elSidebar.nativeElement.querySelectorAll(this._focusableElementsString)
     ) as Array<HTMLElement>;
 
+    // Restore focusability, with previous tabindex attributes
+    for (const el of this._focusableElements) {
+      const prevTabIndex = el.getAttribute(this._tabIndexAttr);
+      const wasTabIndexSet = el.getAttribute(this._tabIndexIndicatorAttr) !== null;
+      if (prevTabIndex !== null) {
+        el.setAttribute('tabindex', prevTabIndex);
+        el.removeAttribute(this._tabIndexAttr);
+      } else if (wasTabIndexSet) {
+        el.removeAttribute('tabindex');
+        el.removeAttribute(this._tabIndexIndicatorAttr);
+      }
+    }
+
     if (this.opened) {
       this._focusedBeforeOpen = document.activeElement as HTMLElement;
-
-      // Restore focusability, with previous tabindex attributes
-      for (const el of this._focusableElements) {
-        const prevTabIndex = el.getAttribute(this._tabIndexAttr);
-        const wasTabIndexSet = el.getAttribute(this._tabIndexIndicatorAttr) !== null;
-        if (prevTabIndex !== null) {
-          el.setAttribute('tabindex', prevTabIndex);
-          el.removeAttribute(this._tabIndexAttr);
-        } else if (wasTabIndexSet) {
-          el.removeAttribute('tabindex');
-          el.removeAttribute(this._tabIndexIndicatorAttr);
-        }
-      }
 
       if (this.autoFocus) {
         this._focusFirstItem();
@@ -460,18 +460,6 @@ export class Sidebar implements AfterContentInit, OnInit, OnChanges, OnDestroy {
 
       document.addEventListener('focus', this._onFocusTrap, true);
     } else {
-      // Manually make all focusable elements unfocusable, saving existing tabindex attributes
-      for (const el of this._focusableElements) {
-        const existingTabIndex = el.getAttribute('tabindex');
-        el.setAttribute('tabindex', '-1');
-        el.setAttribute(this._tabIndexIndicatorAttr, '');
-
-        if (existingTabIndex !== null) {
-          el.setAttribute(this._tabIndexAttr, existingTabIndex);
-          el.setAttribute('tabindex', existingTabIndex);
-        }
-      }
-
       document.removeEventListener('focus', this._onFocusTrap, true);
 
       // Set focus back to element before the sidebar was opened
